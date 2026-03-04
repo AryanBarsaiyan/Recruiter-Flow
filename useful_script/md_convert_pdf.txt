@@ -1,0 +1,2 @@
+npm install
+npx md-to-pdf "BRD-Recruitment-AI-Interview-Platform.md"

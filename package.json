@@ -1,0 +1,10 @@
+{
+  "name": "future-scope",
+  "private": true,
+  "scripts": {
+    "md2pdf": "md-to-pdf"
+  },
+  "devDependencies": {
+    "md-to-pdf": "^5.2.6"
+  }
+}
