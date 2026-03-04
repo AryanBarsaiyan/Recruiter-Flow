@@ -122,6 +122,9 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 | FR-AUTH-06 | Student account is **created on first job application** (no pre-signup required to browse/apply). | Must |
 | FR-AUTH-07 | Students can have **one account** and apply to **multiple jobs** across different companies. | Must |
 | FR-AUTH-08 | Enforce **single active login session** per user; when the same user logs in on a new device/browser, any previous active session token is automatically invalidated. | Must |
+| FR-AUTH-09 | Support **email verification** for new recruiter accounts and optional verification for students before interview. | Must |
+| FR-AUTH-10 | Provide **secure password reset** and account recovery flow (email-based, token-limited). | Must |
+| FR-AUTH-11 | Support optional **2FA/MFA** for recruiter accounts (e.g. OTP app or email OTP) for higher security. | Should |
 
 ---
 
@@ -167,6 +170,8 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 | FR-AI-04 | If resume does not meet criteria, store result and optionally notify student (e.g. “under review” or “not shortlisted”). | Should |
 | FR-AI-05 | Recruiter can configure **resume matching criteria** per job (keywords/skills, experience range, must-have vs nice-to-have, weights). | Must |
 | FR-AI-06 | Provide **explainable match** output: short reasons for match/no-match for recruiter and optionally for student (configurable). | Must |
+| FR-AI-07 | Allow candidate and recruiter to **reschedule or cancel** interview slots within configured rules (cut-off time, max reschedules). | Must |
+| FR-AI-08 | Track **no-show** events (candidate/recruiter) and update candidate status; expose this in reports and dashboards. | Must |
 
 ---
 
@@ -219,6 +224,8 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 | NFR-04 | PII (resumes, names, emails) must be stored and processed per data retention and privacy policy. | Compliance |
 | NFR-05 | UI must be usable on common desktop browsers (Chrome, Edge, Firefox) for interview. | Usability |
 | NFR-06 | Proctoring and copy-logging must be disclosed to the candidate (consent/terms). | Legal/UX |
+| NFR-07 | Implement **centralized logging and monitoring** (errors, performance, proctoring anomalies) with alerting for critical failures. | Operations |
+| NFR-08 | Support **data subject rights**: candidate can request data export and deletion per policy (subject to legal retention). | Compliance |
 
 ---
 
