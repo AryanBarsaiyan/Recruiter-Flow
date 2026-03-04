@@ -61,8 +61,8 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 | Company onboarding (unique companies), branding, audit logs | Payroll / HRIS integration |
 | Job posting and job board (saved jobs, application status) | Legal/compliance deep-dives (refer to legal) |
 | Custom application forms per job | Offline interview mode |
-| Student application forms and account creation on first apply | — |
-| Bulk student onboarding via sheet upload | |
+| Candidate application forms and account creation on first apply | — |
+| Bulk candidate onboarding via sheet upload | |
 | AI resume screening with recruiter-defined criteria + explainable match | |
 | Custom question bank per company/job | |
 | Email/SMS reminders for interviews | |
@@ -76,7 +76,7 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 | **Authenticity verification** | After first code submission, AI asks follow-up questions on the solution to verify the candidate wrote it and understands it—reduces copy-paste and proxy cheating. |
 | **End-to-end proctoring** | Full-screen enforcement, screen/tab switch alerts, inspect disabled, and copy-event logging; violations feed into a risk factor for fair, transparent assessment. |
 | **Structured DSA + report** | Two DSA questions with test-case evaluation and factor-wise score (out of 100), giving recruiters a comparable, actionable report per candidate. |
-| **Zero-friction for students** | No signup to apply; student account is created on first application; one account for multiple companies and jobs. |
+| **Zero-friction for candidates** | No signup to apply; candidate account is created on first application; one account for multiple companies and jobs. |
 | **Flexible onboarding** | Recruiters can either use the job board (students apply via form) or bulk-import candidates via sheet—same pipeline to AI interview and report. |
 
 ---
@@ -100,8 +100,8 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 - **Admin:** Can post jobs, manage candidates, view reports, invite users (if permitted).
 - **Read-only User:** Can view jobs, candidates, and reports; no edit/post permissions.
 
-### 4.2 Student Users
-- **Student/Candidate:** Discovers jobs, fills application forms, gets account on first apply, takes AI interview when invited, receives feedback/report.
+### 4.2 Candidate Users
+- **Candidate:** Discovers jobs, fills application forms, gets account on first apply, takes AI interview when invited, receives feedback/report.
 
 ### 4.3 System
 - **AI:** Resume scanning, interview conduction, code questioning, scoring, report generation.
@@ -119,8 +119,8 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 | FR-AUTH-03 | Support **roles**: Super Admin, Admin, Read-only User; assign per invite. | Must |
 | FR-AUTH-04 | Invited users get signup/login flow and inherit assigned role. | Must |
 | FR-AUTH-05 | **Company onboarding:** Support unique companies; each company has its own workspace/members. | Must |
-| FR-AUTH-06 | Student account is **created on first job application** (no pre-signup required to browse/apply). | Must |
-| FR-AUTH-07 | Students can have **one account** and apply to **multiple jobs** across different companies. | Must |
+| FR-AUTH-06 | Candidate account is **created on first job application** (no pre-signup required to browse/apply). | Must |
+| FR-AUTH-07 | Candidates can have **one account** and apply to **multiple jobs** across different companies. | Must |
 | FR-AUTH-08 | Enforce **single active login session** per user; when the same user logs in on a new device/browser, any previous active session token is automatically invalidated. | Must |
 | FR-AUTH-09 | Support **email verification** for new recruiter accounts and optional verification for students before interview. | Must |
 | FR-AUTH-10 | Provide **secure password reset** and account recovery flow (email-based, token-limited). | Must |
@@ -134,9 +134,9 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 |----|-------------|----------|
 | FR-COMP-01 | Recruiter (admin/super admin) can **onboard their company** (name, details, branding if needed). | Must |
 | FR-COMP-02 | Recruiter can **post jobs** on the platform job board (title, description, requirements, resume criteria). | Must |
-| FR-COMP-03 | Recruiter can **bulk onboard students** by uploading a **sheet** (CSV/Excel); system creates/links student accounts. | Must |
+| FR-COMP-03 | Recruiter can **bulk onboard candidates** by uploading a **sheet** (CSV/Excel); system creates/links candidate accounts. | Must |
 | FR-COMP-04 | Recruiter can view list of applicants per job and their status (applied, screened, invited, interviewed, reported). | Must |
-| FR-COMP-05 | Recruiter can view **AI-generated student reports** and scores (out of 100, factor breakdown). | Must |
+| FR-COMP-05 | Recruiter can view **AI-generated candidate reports** and scores (out of 100, factor breakdown). | Must |
 | FR-COMP-06 | Support **company branding**: custom logo, colors/theme, and recruiter email templates (per company). | Must |
 | FR-COMP-07 | Support **custom application form fields per job** (text, dropdowns, checkboxes, file uploads; required/optional). | Must |
 | FR-COMP-08 | Maintain an **audit log** for sensitive actions (invite sent/accepted, role changes, job create/update/publish, report view/export). | Must |
@@ -146,17 +146,17 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 
 ---
 
-### 5.3 Job Board & Student Application
+### 5.3 Job Board & Candidate Application
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | FR-JOB-01 | **Job board** is visible to students (public or after minimal gate; no account required to view jobs). | Must |
-| FR-JOB-02 | Student **fills application form** per job (e.g. name, email, resume upload, optional fields). | Must |
-| FR-JOB-03 | On first form submit, system **creates a unique student account** (email as identifier; password/setup flow as needed). | Must |
-| FR-JOB-04 | Same student can **apply to multiple jobs** (different companies) using the same account. | Must |
+| FR-JOB-02 | Candidate **fills application form** per job (e.g. name, email, resume upload, optional fields). | Must |
+| FR-JOB-03 | On first form submit, system **creates a unique candidate account** (email as identifier; password/setup flow as needed). | Must |
+| FR-JOB-04 | Same candidate can **apply to multiple jobs** (different companies) using the same account. | Must |
 | FR-JOB-05 | Application form may include resume upload and basic eligibility fields as defined by job. | Should |
-| FR-JOB-06 | Student can **save jobs** for later and manage a **Saved Jobs** list. | Must |
-| FR-JOB-07 | Student has an **Application Status** page showing each application’s stage (applied, screened, invited, scheduled, completed, passed/failed). | Must |
+| FR-JOB-06 | Candidate can **save jobs** for later and manage a **Saved Jobs** list. | Must |
+| FR-JOB-07 | Candidate has an **Application Status** page showing each application’s stage (applied, screened, invited, scheduled, completed, passed/failed). | Must |
 
 ---
 
@@ -166,10 +166,10 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 |----|-------------|----------|
 | FR-AI-01 | On application submit, system **scans the uploaded resume with AI** against job criteria set by recruiter. | Must |
 | FR-AI-02 | If resume **meets** the job criteria, system **sends an AI interview invitation** with **time slot selection**. | Must |
-| FR-AI-03 | Student can **choose a time slot** from available options; confirmation stored. | Must |
-| FR-AI-04 | If resume does not meet criteria, store result and optionally notify student (e.g. “under review” or “not shortlisted”). | Should |
+| FR-AI-03 | Candidate can **choose a time slot** from available options; confirmation stored. | Must |
+| FR-AI-04 | If resume does not meet criteria, store result and optionally notify candidate (e.g. “under review” or “not shortlisted”). | Should |
 | FR-AI-05 | Recruiter can configure **resume matching criteria** per job (keywords/skills, experience range, must-have vs nice-to-have, weights). | Must |
-| FR-AI-06 | Provide **explainable match** output: short reasons for match/no-match for recruiter and optionally for student (configurable). | Must |
+| FR-AI-06 | Provide **explainable match** output: short reasons for match/no-match for recruiter and optionally for candidate (configurable). | Must |
 | FR-AI-07 | Allow candidate and recruiter to **reschedule or cancel** interview slots within configured rules (cut-off time, max reschedules). | Must |
 | FR-AI-08 | Track **no-show** events (candidate/recruiter) and update candidate status; expose this in reports and dashboards. | Must |
 
@@ -183,8 +183,8 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 | FR-INT-02 | **Second question** is presented **after** the user submits the first question’s solution. | Must |
 | FR-INT-03 | After user submits the **first code**, system **asks follow-up questions** about that solution (e.g. complexity, approach, edge cases) to verify **authenticity** and reduce cheating. | Must |
 | FR-INT-04 | AI evaluates: (1) code submission, (2) test case results, (3) discussion answers. | Must |
-| FR-INT-05 | System generates a **detailed report** for the student including factor-wise breakdown. | Must |
-| FR-INT-06 | System **rates the student out of 100** on **several factors** (e.g. code correctness, complexity, explanation quality, test cases passed). | Must |
+| FR-INT-05 | System generates a **detailed report** for the candidate including factor-wise breakdown. | Must |
+| FR-INT-06 | System **rates the candidate out of 100** on **several factors** (e.g. code correctness, complexity, explanation quality, test cases passed). | Must |
 | FR-INT-07 | Support a **custom question bank** per company and/or per job (question CRUD, tagging by topic/difficulty, and assignment rules). | Must |
 
 ---
@@ -209,7 +209,7 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 |----|-------------|----------|
 | FR-REP-01 | Report includes: overall score (0–100), factor-wise scores, code evaluation, discussion summary, test cases passed/failed. | Must |
 | FR-REP-02 | Report includes proctoring events and risk factor. | Must |
-| FR-REP-03 | Recruiter (admin/read-only) can view and export (e.g. PDF) student reports per job. | Should |
+| FR-REP-03 | Recruiter (admin/read-only) can view and export (e.g. PDF) candidate reports per job. | Should |
 | FR-REP-04 | System sends **Email/SMS reminders** for interview slot and pre-interview instructions (configurable templates, per company). | Must |
 
 ---
@@ -236,23 +236,23 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 2. Onboards **company** (name, details).
 3. **Invites** members with role (Admin / Read-only).
 4. **Posts job(s)** on the job board.
-5. (Optional) **Bulk uploads** student sheet to onboard candidates.
-6. Views **applicants** and **AI reports** for each student.
+5. (Optional) **Bulk uploads** candidate sheet to onboard candidates.
+6. Views **applicants** and **AI reports** for each candidate.
 
-### 7.2 Student: Apply → Account → Interview → Report
-1. Student sees **job board**, selects a job.
+### 7.2 Candidate: Apply → Account → Interview → Report
+1. Candidate sees **job board**, selects a job.
 2. Fills **application form** (resume + fields).
-3. On first submit → **student account created**.
+3. On first submit → **candidate account created**.
 4. **AI scans resume**; if match → **interview invitation** with **time slot**.
-5. Student **selects slot** and receives confirmation.
-6. At slot time, student joins **AI interview**: full-screen, proctoring on.
+5. Candidate **selects slot** and receives confirmation.
+6. At slot time, candidate joins **AI interview**: full-screen, proctoring on.
 7. **Question 1** → submit code → **follow-up questions** on that code.
 8. **Question 2** (DSA) → submit code → (optional) follow-up.
-9. System generates **report** (score out of 100, factors, risk); student and recruiter can view.
+9. System generates **report** (score out of 100, factors, risk); candidate and recruiter can view.
 
 ### 7.3 Bulk Onboarding (Recruiter)
-1. Recruiter uploads **sheet** (CSV/Excel) with student details (e.g. name, email, college).
-2. System **creates/links student accounts** and optionally associates with a job or “pool”.
+1. Recruiter uploads **sheet** (CSV/Excel) with candidate details (e.g. name, email, college).
+2. System **creates/links candidate accounts** and optionally associates with a job or “pool”.
 3. Recruiter can then trigger **AI interview invitations** or next steps for these students.
 
 ---
@@ -263,8 +263,8 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 |-----------|----------------|
 | **Auth & RBAC** | Signup, login, invites, roles (Super Admin, Admin, Read-only), company association. |
 | **Company & Job Management** | Company onboarding, job CRUD, job board listing, branding (logo/colors/templates). |
-| **Application & Student** | Application form, resume upload, student account creation, multi-apply. |
-| **Bulk Import** | Parse sheet, validate, create/update student records. |
+| **Application & Candidate** | Application form, resume upload, candidate account creation, multi-apply. |
+| **Bulk Import** | Parse sheet, validate, create/update candidate records. |
 | **AI Resume Service** | Scan resume vs job criteria; return match/no-match with explainability; trigger invite flow. |
 | **Scheduling** | Time slots, booking, Email/SMS reminders for AI interview. |
 | **Interview Engine** | DSA questions, code run/test, follow-up Q&A, full-screen & proctoring hooks. |
@@ -304,7 +304,7 @@ The platform supports two primary user types: **Recruiters** (companies, admins,
 
 ### 9.5 Reports & Analytics
 - **Export to ATS** (CSV, or ATS API integration).
-- **Student-facing report** with tips to improve (e.g. “practice complexity”).
+- **Candidate-facing report** with tips to improve (e.g. “practice complexity”).
 - **Factor customization:** Recruiter can weight factors (e.g. code 50%, communication 30%, proctoring 20%).
 
 ### 9.6 Platform & Ops
@@ -373,7 +373,7 @@ Application → Resume Screening → MCQ Round → AI Interview → Manual Inter
 | Competitor | Strengths | Weaknesses | Gap vs Our Product |
 |------------|-----------|------------|--------------------|
 | **HackerRank** | Large DSA library, plagiarism detection, AI-assisted grading, ATS integrations, enterprise-ready | Expensive for startups, complex UI | ❌ No public job board; ❌ No automatic AI resume-to-interview pipeline; ❌ Limited authenticity questioning after submission |
-| **Codility** | Strong anti-cheating, real-world coding tasks, automated scoring | No integrated hiring funnel, no resume AI matching | ❌ No end-to-end hiring pipeline; ❌ No student-first job discovery |
+| **Codility** | Strong anti-cheating, real-world coding tasks, automated scoring | No integrated hiring funnel, no resume AI matching | ❌ No end-to-end hiring pipeline; ❌ No candidate-first job discovery |
 | **CodeSignal** | Modern UI, gamified scoring, live interview environment | Expensive, resume screening not core | ❌ No job board; ❌ No auto interview trigger |
 | **HackerEarth** | Hackathons, budget-friendly, good coding library | UI not enterprise-grade, weak resume intelligence | ❌ No public job board; ❌ Limited AI resume screening |
 | **iMocha** | AI interviewer bot, AI proctoring, skill-based assessments | No strong public job marketplace, less DSA depth vs HackerRank | ❌ No job board; ⚠️ Authenticity Q&A limited |
@@ -424,7 +424,7 @@ Application → Resume Screening → MCQ Round → AI Interview → Manual Inter
 ### 14.1 Target Customers
 - **Startups & SMBs:** Cost-conscious; need efficient screening without large HR teams
 - **Enterprises:** Need compliance, integrations, audit trails
-- **Colleges/Placement Cells:** Bulk campus hiring; student-first job discovery
+- **Colleges/Placement Cells:** Bulk campus hiring; candidate-first job discovery
 
 ### 14.2 Market Sizing (To Be Defined)
 | Metric | Description |
@@ -600,7 +600,7 @@ The platform exposes secure **REST APIs** for integration with:
 ### 21.2 Candidate Analytics
 - Performance breakdown (factor-wise)
 - Historical attempts
-- Improvement suggestions (student-facing)
+- Improvement suggestions (candidate-facing)
 
 ### 21.3 Platform Admin Dashboard
 - Companies onboarded
@@ -635,7 +635,7 @@ We are **not** competing only with HackerRank, Codility, CodeSignal, HackerEarth
 ### 23.3 Key Differentiators
 - **Integrated workflow:** Job board → AI screening → auto interview invite → proctored DSA → report (competitors assume you import candidates)
 - **Authenticity intelligence:** Post-code Q&A to verify candidate wrote and understands the solution
-- **Student-first:** No signup to apply; one account for multiple companies
+- **Candidate-first:** No signup to apply; one account for multiple companies
 - **Extensible pipeline:** Future stages (MCQ, manual interview with GMeet, recording, pass/fail)
 
 ---
@@ -650,7 +650,7 @@ We are **not** competing only with HackerRank, Codility, CodeSignal, HackerEarth
 | **DSA** | Data Structures and Algorithms (e.g. arrays, trees, graphs, sorting, DP). |
 | **Job board** | Public or gated list of jobs where students can apply. |
 | **Risk factor** | Score or level derived from proctoring events (tab/screen switch, copy, inspect) indicating cheating likelihood. |
-| **Factor (scoring)** | Dimension on which the student is rated (e.g. code correctness, complexity, communication, test cases). |
+| **Factor (scoring)** | Dimension on which the candidate is rated (e.g. code correctness, complexity, communication, test cases). |
 | **Bulk onboard** | Importing multiple students via CSV/Excel to create or link accounts. |
 | **ATS** | Applicant Tracking System (e.g. Greenhouse, Lever, Workday). |
 | **TAM/SAM/SOM** | Total / Serviceable Addressable / Serviceable Obtainable Market. |
