@@ -240,9 +240,11 @@ erDiagram
 
   Candidate ||--o{ Resume : uploads
   Candidate ||--o{ JobApplication : applies
+  Candidate ||--o{ SavedJob : bookmarks
 
   Job ||--o{ JobApplication : receives
   Job ||--o{ JobCustomField : configures
+  Job ||--o{ SavedJob : appears_in
 
   JobApplication ||--o{ ApplicationAnswer : captures
   JobApplication ||--o{ ResumeScreening : screened_by
@@ -254,6 +256,7 @@ erDiagram
   Interview ||--o{ InterviewQuestion : contains
   Interview ||--o{ ProctoringSession : monitored_by
   Interview ||--|| InterviewReport : summarizes
+  Interview ||--o{ ManualInterview : may_extend_with
 
   QuestionBankQuestion ||--o{ QuestionTestCase : defines
   InterviewQuestion ||--o{ CodeSubmission : has
@@ -270,6 +273,28 @@ erDiagram
 
   Company ||--o{ AuditLog : generates
   User ||--o{ AuditLog : acts_in
+```
+
+## Candidate Journey Overview (Mermaid)
+
+```mermaid
+flowchart LR
+  A[Candidate] --> B[Job Application]
+  B --> C[Resume Screening]
+  C -->|Shortlisted| D[Interview Invitation]
+  C -->|Not Shortlisted| X[Archive / Notify]
+
+  D --> E[Interview Slot Booking]
+  E --> F[AI DSA Interview]
+
+  F --> G[Proctoring & Behavioral Signals]
+  F --> H[Code & Follow-up Evaluation]
+
+  G --> I[Risk Score]
+  H --> I
+
+  I --> J[Interview Report]
+  J --> K[Recruiter Dashboards & Analytics]
 ```
 
 ---
