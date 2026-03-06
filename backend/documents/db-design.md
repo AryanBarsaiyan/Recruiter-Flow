@@ -275,26 +275,38 @@ erDiagram
   User ||--o{ AuditLog : acts_in
 ```
 
-## Candidate Journey Overview (Mermaid)
+## Candidate & Recruiter Flow (Mermaid)
 
 ```mermaid
 flowchart LR
-  A[Candidate] --> B[Job Application]
-  B --> C[Resume Screening]
-  C -->|Shortlisted| D[Interview Invitation]
-  C -->|Not Shortlisted| X[Archive / Notify]
+  subgraph Recruiter Side
+    R1[Recruiter] --> R2[Create Company & Members]
+    R2 --> R3[Post Job + Form + Criteria]
+  end
 
-  D --> E[Interview Slot Booking]
-  E --> F[AI DSA Interview]
+  subgraph Candidate Side
+    C1[Candidate] --> C2[View Job Board]
+    C2 --> C3[Submit Job Application]
+  end
 
-  F --> G[Proctoring & Behavioral Signals]
-  F --> H[Code & Follow-up Evaluation]
+  C3 --> S1[AI Resume Screening]
+  S1 -->|Shortlisted| I1[Create Interview Invitation]
+  S1 -->|Not Shortlisted| NX[Archive / Notify Candidate]
 
-  G --> I[Risk Score]
-  H --> I
+  I1 --> S2[Candidate Books Slot]
+  S2 --> I2[AI DSA Interview Session]
 
-  I --> J[Interview Report]
-  J --> K[Recruiter Dashboards & Analytics]
+  I2 --> P1[Proctoring & Behavioral Events]
+  I2 --> E1[Code Execution & Follow-up Q&A]
+
+  P1 --> RSK[Compute Risk Score]
+  E1 --> SC[Compute Factor Scores]
+
+  RSK --> REP[Generate Interview Report]
+  SC --> REP
+
+  REP --> D1[Recruiter Dashboards & Analytics]
+  REP --> C4[Candidate Views Report]
 ```
 
 ---

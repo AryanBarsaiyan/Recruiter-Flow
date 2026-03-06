@@ -1,1 +1,85 @@
+# Environment and secrets
 .env
+.env.local
+.env.*.local
+*.env
+application-local.yml
+**/application-local.yml
+!*.env.sample
+!env.sample
+
+# Build outputs
+target/
+build/
+out/
+*.class
+*.jar
+!**/maven-wrapper.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+.mvn/timing.properties
+.mvn/jvm.config
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.code-workspace
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and temp
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*~
+
+# Test and coverage
+coverage/
+.nyc_output/
+*.lcov
+*.gcov
+*.gcno
+*.gcda
+htmlcov/
+.tox/
+.nox/
+.cache
+.pytest_cache/
+surefire-reports/
+test-output/
+
+# Optional: keep wrapper scripts, ignore large JAR if desired
+# .mvn/wrapper/maven-wrapper.jar

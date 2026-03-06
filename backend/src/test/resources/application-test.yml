@@ -1,0 +1,8 @@
+# Test profile: use with AbstractIntegrationTest which overrides datasource via Testcontainers.
+# Use create-drop so Hibernate creates schema from entities (avoids Flyway vs JPA init order).
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
