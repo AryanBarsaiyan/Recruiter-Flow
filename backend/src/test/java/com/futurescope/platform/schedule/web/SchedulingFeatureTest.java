@@ -53,6 +53,7 @@ class SchedulingFeatureTest extends AbstractIntegrationTest {
         candidateEmail = "sched-candidate-" + UUID.randomUUID() + "@test.com";
         recruiterToken = signupAndGetToken();
         companyId = getCompanyIdForUser(recruiterEmailForLookup);
+        createPipeline(companyId, recruiterToken);
         jobId = createJobViaApi();
         var jobEntity = jobRepository.findById(jobId).orElseThrow();
         testDataHelper.createTwoQuestionsForCompany(jobEntity.getCompany(), jobEntity);
@@ -80,6 +81,18 @@ class SchedulingFeatureTest extends AbstractIntegrationTest {
     }
 
     private volatile String recruiterEmailForLookup;
+
+    private void createPipeline(UUID companyId, String token) throws Exception {
+        String body = objectMapper.writeValueAsString(Map.of(
+                "companyId", companyId.toString(),
+                "name", "Default Hiring",
+                "isDefault", true));
+        mockMvc.perform(post("/companies/{companyId}/pipelines", companyId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
+    }
 
     private UUID getCompanyIdForUser(String email) {
         User user = userRepository.findByEmailIgnoreCase(email).orElseThrow();

@@ -40,6 +40,7 @@ class CompanyFeatureTest extends AbstractIntegrationTest {
     MockMvc mockMvc;
     String recruiterToken;
     UUID companyId;
+    UUID pipelineId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -58,6 +59,21 @@ class CompanyFeatureTest extends AbstractIntegrationTest {
         recruiterToken = objectMapper.readTree(res).get("accessToken").asText();
         User user = userRepository.findByEmailIgnoreCase(email).orElseThrow();
         companyId = companyMemberRepository.findByUser(user).stream().findFirst().orElseThrow().getCompany().getId();
+        pipelineId = createPipeline(companyId, recruiterToken);
+    }
+
+    private UUID createPipeline(UUID companyId, String token) throws Exception {
+        String body = objectMapper.writeValueAsString(Map.of(
+                "companyId", companyId.toString(),
+                "name", "Default Hiring",
+                "isDefault", true));
+        String res = mockMvc.perform(post("/companies/{companyId}/pipelines", companyId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return UUID.fromString(objectMapper.readTree(res).get("id").asText());
     }
 
     @Test
@@ -224,7 +240,8 @@ class CompanyFeatureTest extends AbstractIntegrationTest {
 
         String updateBody = objectMapper.writeValueAsString(Map.of(
                 "companyId", companyId.toString(),
-                "title", "Updated Job"));
+                "title", "Updated Job",
+                "pipelineId", pipelineId.toString()));
         mockMvc.perform(put("/jobs/{id}", jobId)
                         .header("Authorization", "Bearer " + recruiterToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -354,7 +371,8 @@ class CompanyFeatureTest extends AbstractIntegrationTest {
 
         String updateBody = objectMapper.writeValueAsString(Map.of(
                 "companyId", companyId.toString(),
-                "title", "Hacked Title"));
+                "title", "Hacked Title",
+                "pipelineId", pipelineId.toString()));
         mockMvc.perform(put("/jobs/{id}", jobId)
                         .header("Authorization", "Bearer " + readonlyToken)
                         .contentType(MediaType.APPLICATION_JSON)

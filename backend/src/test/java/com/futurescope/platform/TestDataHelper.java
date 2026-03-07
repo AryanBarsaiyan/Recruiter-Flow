@@ -1,6 +1,5 @@
 package com.futurescope.platform;
 
-import com.futurescope.platform.application.domain.JobApplication;
 import com.futurescope.platform.auth.domain.Company;
 import com.futurescope.platform.auth.domain.CompanyMember;
 import com.futurescope.platform.auth.domain.Role;
@@ -39,6 +38,7 @@ public class TestDataHelper {
     private final JobRepository jobRepository;
     private final QuestionBankQuestionRepository questionBankQuestionRepository;
     private final CandidateRepository candidateRepository;
+    @SuppressWarnings("unused") // reserved for future test data
     private final InterviewRepository interviewRepository;
     private final InterviewReportRepository reportRepository;
 

@@ -4,7 +4,6 @@ import com.futurescope.platform.application.domain.JobApplication;
 import com.futurescope.platform.auth.domain.User;
 import com.futurescope.platform.auth.service.RbacService;
 import com.futurescope.platform.reporting.domain.InterviewReport;
-import com.futurescope.platform.reporting.domain.InterviewReportFactor;
 import com.futurescope.platform.reporting.repository.InterviewReportFactorRepository;
 import com.futurescope.platform.reporting.repository.InterviewReportRepository;
 import com.futurescope.platform.application.repository.JobApplicationRepository;

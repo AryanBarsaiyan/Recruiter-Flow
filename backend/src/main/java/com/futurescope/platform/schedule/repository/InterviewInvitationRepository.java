@@ -1,6 +1,5 @@
 package com.futurescope.platform.schedule.repository;
 
-import com.futurescope.platform.application.domain.JobApplication;
 import com.futurescope.platform.schedule.domain.InterviewInvitation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

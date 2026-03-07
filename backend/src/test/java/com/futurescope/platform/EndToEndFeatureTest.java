@@ -64,7 +64,8 @@ class EndToEndFeatureTest extends AbstractIntegrationTest {
         recruiterToken = signupAndGetAccessToken();
         companyId = getCompanyIdForCurrentUser(recruiterEmail);
 
-        // 2. Create job (recruiter)
+        // 2. Create pipeline, then job (recruiter)
+        createPipelineForCompany(companyId, recruiterToken);
         jobId = createJobAndGetId();
         // 3. Create 2 questions for interview start (need company + job entities)
         var jobEntity = jobRepository.findById(jobId).orElseThrow();
@@ -171,6 +172,18 @@ class EndToEndFeatureTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
                 .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(response).get("accessToken").asText();
+    }
+
+    private void createPipelineForCompany(UUID companyId, String token) throws Exception {
+        String body = objectMapper.writeValueAsString(Map.of(
+                "companyId", companyId.toString(),
+                "name", "Default Hiring",
+                "isDefault", true));
+        mockMvc.perform(post("/companies/{companyId}/pipelines", companyId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
     }
 
     private UUID getCompanyIdForCurrentUser(String email) {

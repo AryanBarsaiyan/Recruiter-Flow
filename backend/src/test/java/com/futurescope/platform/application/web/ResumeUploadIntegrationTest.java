@@ -1,6 +1,5 @@
 package com.futurescope.platform.application.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurescope.platform.AbstractIntegrationTest;
 import com.futurescope.platform.auth.domain.Company;
 import com.futurescope.platform.auth.domain.User;

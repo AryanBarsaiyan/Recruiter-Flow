@@ -54,7 +54,7 @@ public class CompanyService {
 
     @Transactional(readOnly = true)
     public CompanyMemberResponse getCurrentMember(UUID companyId, User currentUser) {
-        Company company = companyRepository.findById(companyId)
+        companyRepository.findById(companyId)
                 .orElseThrow(() -> new IllegalArgumentException("Company not found"));
         CompanyMember member = companyMemberRepository.findActiveMembership(companyId, currentUser.getId(), "active")
                 .orElseThrow(() -> new IllegalArgumentException("Not a member of this company"));

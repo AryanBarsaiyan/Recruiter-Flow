@@ -12,8 +12,8 @@ import com.futurescope.platform.candidate.web.dto.CandidateProfileResponse;
 import com.futurescope.platform.candidate.web.dto.ProfileUpdateRequest;
 import com.futurescope.platform.candidate.web.dto.SavedJobResponse;
 import jakarta.validation.Valid;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.PathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -114,7 +114,7 @@ public class MeController {
         if (path == null) {
             return ResponseEntity.notFound().build();
         }
-        Resource resource = new PathResource(path);
+        Resource resource = new FileSystemResource(path);
         String contentType = path.toString().toLowerCase().endsWith(".png") ? "image/png"
                 : path.toString().toLowerCase().endsWith(".webp") ? "image/webp"
                 : path.toString().toLowerCase().endsWith(".gif") ? "image/gif"

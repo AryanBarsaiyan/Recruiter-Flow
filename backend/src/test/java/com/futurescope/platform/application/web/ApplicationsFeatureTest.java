@@ -46,6 +46,18 @@ class ApplicationsFeatureTest extends AbstractIntegrationTest {
     UUID applicationId;
     UUID otherApplicationId;
 
+    private void createPipeline(UUID companyId, String token) throws Exception {
+        String body = objectMapper.writeValueAsString(Map.of(
+                "companyId", companyId.toString(),
+                "name", "Default Hiring",
+                "isDefault", true));
+        mockMvc.perform(post("/companies/{companyId}/pipelines", companyId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
+    }
+
     @BeforeEach
     void setUp() throws Exception {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
@@ -65,6 +77,7 @@ class ApplicationsFeatureTest extends AbstractIntegrationTest {
         recruiterToken = objectMapper.readTree(signupRes).get("accessToken").asText();
         User recruiter = userRepository.findByEmailIgnoreCase(recruiterEmail).orElseThrow();
         companyId = companyMemberRepository.findByUser(recruiter).stream().findFirst().orElseThrow().getCompany().getId();
+        createPipeline(companyId, recruiterToken);
 
         String jobReq = objectMapper.writeValueAsString(Map.of("companyId", companyId.toString(), "title", "App Test Job"));
         String jobRes = mockMvc.perform(post("/jobs")

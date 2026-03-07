@@ -96,7 +96,7 @@ class SecurityAndValidationIntegrationTest extends AbstractIntegrationTest {
         String email1 = "rbac1-" + UUID.randomUUID() + "@test.com";
         String email2 = "rbac2-" + UUID.randomUUID() + "@test.com";
         String token1 = signupAndGetToken(email1, "Company One");
-        String token2 = signupAndGetToken(email2, "Company Two");
+        signupAndGetToken(email2, "Company Two");
         UUID company2Id = getCompanyIdForUser(email2);
 
         mockMvc.perform(post("/jobs")

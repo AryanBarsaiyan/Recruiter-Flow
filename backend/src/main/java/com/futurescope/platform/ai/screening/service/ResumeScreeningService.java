@@ -12,7 +12,6 @@ import com.futurescope.platform.application.repository.JobApplicationRepository;
 import com.futurescope.platform.candidate.domain.Resume;
 import com.futurescope.platform.job.domain.Job;
 import com.futurescope.platform.job.domain.Pipeline;
-import com.futurescope.platform.job.domain.PipelineStage;
 import com.futurescope.platform.job.repository.PipelineStageRepository;
 import com.futurescope.platform.notification.service.NotificationService;
 import com.futurescope.platform.schedule.domain.InterviewInvitation;

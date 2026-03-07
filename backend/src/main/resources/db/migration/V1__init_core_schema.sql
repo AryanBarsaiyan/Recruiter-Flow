@@ -2,13 +2,15 @@
 -- Auth & RBAC
 
 CREATE TABLE users (
-    id              UUID PRIMARY KEY,
-    email           VARCHAR(255) NOT NULL UNIQUE,
-    password_hash   VARCHAR(255) NOT NULL,
-    user_type       VARCHAR(32)  NOT NULL,
-    is_active       BOOLEAN      NOT NULL DEFAULT TRUE,
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    last_login_at   TIMESTAMPTZ
+    id                  UUID PRIMARY KEY,
+    email               VARCHAR(255) NOT NULL UNIQUE,
+    password_hash       VARCHAR(255) NOT NULL,
+    user_type           VARCHAR(32)  NOT NULL,
+    full_name           VARCHAR(255),
+    avatar_storage_path VARCHAR(512),
+    is_active           BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    last_login_at       TIMESTAMPTZ
 );
 
 CREATE TABLE companies (
@@ -53,7 +55,8 @@ CREATE TABLE email_verifications (
     user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token      VARCHAR(255) NOT NULL UNIQUE,
     expires_at TIMESTAMPTZ  NOT NULL,
-    used_at    TIMESTAMPTZ
+    used_at    TIMESTAMPTZ,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE password_resets (
@@ -61,7 +64,8 @@ CREATE TABLE password_resets (
     user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token      VARCHAR(255) NOT NULL UNIQUE,
     expires_at TIMESTAMPTZ  NOT NULL,
-    used_at    TIMESTAMPTZ
+    used_at    TIMESTAMPTZ,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE mfa_methods (
@@ -76,14 +80,15 @@ CREATE TABLE mfa_methods (
 -- Candidate data
 
 CREATE TABLE candidates (
-    id              UUID PRIMARY KEY,
-    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    full_name       VARCHAR(255) NOT NULL,
-    phone           VARCHAR(50),
-    college         VARCHAR(255),
-    graduation_year INTEGER,
-    extra_metadata  JSONB,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id                  UUID PRIMARY KEY,
+    user_id             UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    full_name           VARCHAR(255) NOT NULL,
+    phone               VARCHAR(50),
+    college             VARCHAR(255),
+    graduation_year     INTEGER,
+    avatar_storage_path VARCHAR(512),
+    extra_metadata      JSONB,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE resumes (

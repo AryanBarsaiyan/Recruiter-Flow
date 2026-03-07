@@ -51,6 +51,7 @@ class ProctoringFeatureTest extends AbstractIntegrationTest {
         candidateEmail = "proc-cand-" + UUID.randomUUID() + "@test.com";
         String recruiterToken = signupAndGetToken();
         UUID companyId = getCompanyIdForUser(recruiterEmail);
+        createPipeline(companyId, recruiterToken);
         UUID jobId = createJobViaApi(recruiterToken, companyId);
         var jobEntity = jobRepository.findById(jobId).orElseThrow();
         testDataHelper.createTwoQuestionsForCompany(jobEntity.getCompany(), jobEntity);
@@ -76,6 +77,18 @@ class ProctoringFeatureTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(res).get("accessToken").asText();
+    }
+
+    private void createPipeline(UUID companyId, String token) throws Exception {
+        String body = objectMapper.writeValueAsString(Map.of(
+                "companyId", companyId.toString(),
+                "name", "Default Hiring",
+                "isDefault", true));
+        mockMvc.perform(post("/companies/{companyId}/pipelines", companyId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
     }
 
     private UUID getCompanyIdForUser(String email) {
