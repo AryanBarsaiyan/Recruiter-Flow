@@ -1,6 +1,8 @@
 package com.futurescope.platform.proctoring.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -24,6 +26,7 @@ public class ProctoringEvent {
     private OffsetDateTime occurredAt;
 
     @Column(name = "details")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String detailsJson;
 
     @Column(name = "weight", precision = 5, scale = 2)

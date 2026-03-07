@@ -49,15 +49,31 @@ Request:
   "companyName": "string"
 }
 ```
-Response: `200` → `{ "accessToken", "tokenType": "Bearer", "refreshToken" }`
+Response: `200` → `{ "accessToken", "tokenType": "Bearer", "refreshToken", "user" }`
 
 **POST /auth/login**  
 Request: `{ "email", "password" }`  
-Response: same as signup.
+Response: same as signup (includes `user`).
 
 **POST /auth/refresh**  
 Request: `{ "refreshToken": "string" }`  
-Response: same as signup.
+Response: same as signup (includes `user`).
+
+**Auth response shape (login, signup, refresh, accept-invite):**
+```json
+{
+  "accessToken": "string",
+  "tokenType": "Bearer",
+  "refreshToken": "string",
+  "user": {
+    "id": "uuid",
+    "email": "string",
+    "userType": "recruiter" | "candidate" | "platform_admin",
+    "defaultCompanyId": "uuid | null"
+  }
+}
+```
+For recruiters, `defaultCompanyId` is the first active company (used for dashboard). For candidates it is null.
 
 **POST /auth/logout**  
 No body. Response: `204 No Content`.
@@ -76,7 +92,7 @@ Response: `200` → `{ "inviteToken", "expiresAt" }`
 
 **POST /auth/accept-invite**  
 Request: `{ "token": "string", "password": "string" }`  
-Response: `200` → `{ "accessToken", "tokenType", "refreshToken" }`
+Response: `200` → `{ "accessToken", "tokenType", "refreshToken", "user" }`
 
 **POST /auth/verify-email**  
 Request: `{ "token": "string" }`  
@@ -181,7 +197,7 @@ Response: `200` → application object (e.g. `{ "id", "jobId", "status", "applie
 | GET | `/applications/{id}/stage` | Auth | Get stage progress |
 
 **GET /applications/{id}/stage**  
-Response: `200` → `{ "stages": [ { "stageId", "name", "status", "startedAt", "completedAt" } ] }` (or similar).
+Response: `200` → **array** of `{ "id", "stageId", "stageName", "status", "startedAt", "completedAt", "notes" }` (not wrapped in `stages`).
 
 ---
 
@@ -194,6 +210,12 @@ Response: `200` → `{ "stages": [ { "stageId", "name", "status", "startedAt", "
 | GET | `/me/saved-jobs` | Auth, candidate | List saved jobs |
 | POST | `/me/saved-jobs` | Auth, candidate | Save a job |
 | DELETE | `/me/saved-jobs/{id}` | Auth, candidate | Unsave a job |
+
+**GET /me** (candidate only)  
+Response: `200` → `{ "id", "email", "fullName", "phone", "college", "graduationYear" }`.
+
+**GET /me/saved-jobs**  
+Response: `200` → array of `{ "id", "jobId", "jobTitle", "savedAt" }`.
 
 **POST /me/saved-jobs**  
 Request: `{ "jobId": "uuid" }`  
@@ -231,9 +253,12 @@ Stages: `{ "id", "pipelineId", "name", "type", "orderIndex" }`.
 | GET | `/interview-invitations/{token}` | Public | Get invitation info by token |
 | POST | `/interview-invitations/{token}/slots` | Public | Book a slot |
 
+**GET /interview-invitations/{token}**  
+Response: `200` → `{ "invitationId", "applicationId", "jobId", "jobTitle", "interviewType", "expiresAt", "status" }`.
+
 **POST /interview-invitations/{token}/slots**  
 Request: `{ "scheduledStartAt": "ISO8601", "scheduledEndAt": "ISO8601" }`  
-Response: `200` → slot object.
+Response: `200` → `{ "id", "scheduledStartAt", "scheduledEndAt", "bookedByCandidateAt" }`.
 
 ---
 

@@ -2,6 +2,8 @@ package com.futurescope.platform.interview.domain;
 
 import com.futurescope.platform.application.domain.JobApplication;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -37,6 +39,7 @@ public class Interview {
     private BigDecimal riskScore;
 
     @Column(name = "engine_metadata")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String engineMetadataJson;
 
     @Column(name = "created_at", nullable = false)

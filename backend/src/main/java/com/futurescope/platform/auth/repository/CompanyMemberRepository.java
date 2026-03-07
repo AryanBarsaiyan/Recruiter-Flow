@@ -33,5 +33,11 @@ public interface CompanyMemberRepository extends JpaRepository<CompanyMember, UU
             @Param("status") String status
     );
 
+    @Query("select cm from CompanyMember cm where cm.company.id = :companyId and cm.user.id = :userId")
+    Optional<CompanyMember> findByCompanyIdAndUserId(
+            @Param("companyId") UUID companyId,
+            @Param("userId") UUID userId
+    );
+
 }
 

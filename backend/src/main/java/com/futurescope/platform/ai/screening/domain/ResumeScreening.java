@@ -4,6 +4,8 @@ import com.futurescope.platform.application.domain.JobApplication;
 import com.futurescope.platform.candidate.domain.Resume;
 import com.futurescope.platform.job.domain.Job;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -35,9 +37,11 @@ public class ResumeScreening {
     private String result;
 
     @Column(name = "explanation")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String explanationJson;
 
     @Column(name = "criteria_snapshot")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String criteriaSnapshotJson;
 
     @Column(name = "created_at", nullable = false)

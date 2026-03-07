@@ -7,8 +7,10 @@ public class CompanyMemberResponse {
     private UUID id;
     private UUID userId;
     private String userEmail;
+    private String fullName;
     private String roleName;
     private String status;
+    private String avatarUrl;
 
     public UUID getId() {
         return id;
@@ -34,6 +36,14 @@ public class CompanyMemberResponse {
         this.userEmail = userEmail;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getRoleName() {
         return roleName;
     }
@@ -48,5 +58,13 @@ public class CompanyMemberResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import com.futurescope.platform.common.exception.AlreadyAppliedException;
+import com.futurescope.platform.common.exception.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -47,6 +50,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
+        ApiError error = new ApiError(
+                HttpStatus.NOT_FOUND.value(),
+                "NOT_FOUND",
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
         ApiError error = new ApiError(
@@ -56,6 +70,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 null
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AlreadyAppliedException.class)
+    public ResponseEntity<ApiError> handleAlreadyApplied(AlreadyAppliedException ex) {
+        ApiError error = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                "ALREADY_APPLIED",
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = "You have already applied to this job.";
+        ApiError error = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                "ALREADY_APPLIED",
+                message,
+                null
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)

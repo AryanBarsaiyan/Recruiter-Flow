@@ -10,6 +10,7 @@ public class CandidateProfileResponse {
     private String phone;
     private String college;
     private Integer graduationYear;
+    private String avatarUrl;
 
     public UUID getId() {
         return id;
@@ -57,5 +58,13 @@ public class CandidateProfileResponse {
 
     public void setGraduationYear(Integer graduationYear) {
         this.graduationYear = graduationYear;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

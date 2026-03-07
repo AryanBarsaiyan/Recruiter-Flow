@@ -44,6 +44,7 @@ class ApplicationsFeatureTest extends AbstractIntegrationTest {
     UUID companyId;
     UUID jobId;
     UUID applicationId;
+    UUID otherApplicationId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -99,6 +100,22 @@ class ApplicationsFeatureTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         candidateToken = objectMapper.readTree(loginRes).get("accessToken").asText();
+
+        String otherCandidateEmail = "app-cand2-" + UUID.randomUUID() + "@test.com";
+        User otherCandidateUser = testDataHelper.createCandidateUser(otherCandidateEmail,
+                webApplicationContext.getBean(org.springframework.security.crypto.password.PasswordEncoder.class).encode("candidate"));
+        testDataHelper.createCandidateProfile(otherCandidateUser, "Other Candidate");
+        String otherApplyBody = objectMapper.writeValueAsString(Map.of(
+                "email", otherCandidateEmail,
+                "fullName", "Other Candidate",
+                "resumeStoragePath", "/test/resume2.pdf",
+                "resumeOriginalFilename", "resume2.pdf"));
+        String otherApplyRes = mockMvc.perform(post("/jobs/{jobId}/apply", jobId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(otherApplyBody))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        otherApplicationId = UUID.fromString(objectMapper.readTree(otherApplyRes).get("id").asText());
     }
 
     @Test
@@ -108,6 +125,8 @@ class ApplicationsFeatureTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(applicationId.toString()))
                 .andExpect(jsonPath("$.jobId").value(jobId.toString()))
+                .andExpect(jsonPath("$.jobTitle").value("App Test Job"))
+                .andExpect(jsonPath("$.companyName").exists())
                 .andExpect(jsonPath("$.status").exists());
     }
 
@@ -126,5 +145,39 @@ class ApplicationsFeatureTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + recruiterToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void getApplication_byId_returns400WhenNotFound() throws Exception {
+        UUID randomId = UUID.randomUUID();
+        mockMvc.perform(get("/applications/{id}", randomId)
+                        .header("Authorization", "Bearer " + recruiterToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Application not found"));
+    }
+
+    @Test
+    void getApplication_byId_asCandidate_deniedWhenAccessingOtherApplication() throws Exception {
+        mockMvc.perform(get("/applications/{id}", otherApplicationId)
+                        .header("Authorization", "Bearer " + candidateToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Application not found"));
+    }
+
+    @Test
+    void getStageProgress_asCandidate_returnsOwnApplicationStages() throws Exception {
+        mockMvc.perform(get("/applications/{id}/stage", applicationId)
+                        .header("Authorization", "Bearer " + candidateToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void getStageProgress_asCandidate_deniedWhenAccessingOtherApplication() throws Exception {
+        mockMvc.perform(get("/applications/{id}/stage", otherApplicationId)
+                        .header("Authorization", "Bearer " + candidateToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Application not found"));
     }
 }

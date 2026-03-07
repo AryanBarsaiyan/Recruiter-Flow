@@ -19,7 +19,10 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtService(TEST_SECRET_BASE64, 60L);
+        JwtProperties props = new JwtProperties();
+        props.setSecret(TEST_SECRET_BASE64);
+        props.setAccessTokenMinutes(60L);
+        jwtService = new JwtService(props);
         user = new User();
         user.setId(UUID.randomUUID());
         user.setEmail("test@example.com");
@@ -65,7 +68,10 @@ class JwtServiceTest {
 
     @Test
     void isTokenValid_tokenSignedWithDifferentKey_returnsFalse() {
-        JwtService otherService = new JwtService("b3RoZXJfa2V5X290aGVyX2tleV9vdGhlcl9rZXlfb3RoZXJfa2V5X29r", 60L);
+        JwtProperties otherProps = new JwtProperties();
+        otherProps.setSecret("b3RoZXJfa2V5X290aGVyX2tleV9vdGhlcl9rZXlfb3RoZXJfa2V5X29r");
+        otherProps.setAccessTokenMinutes(60L);
+        JwtService otherService = new JwtService(otherProps);
         String token = otherService.generateAccessToken(user, UUID.randomUUID());
         assertFalse(jwtService.isTokenValid(token));
     }

@@ -90,11 +90,18 @@
             <version>8.10.1</version>
         </dependency>
 
-        <!-- OpenAPI / Swagger -->
+        <!-- OpenAPI / Swagger (3.x for Spring Boot 4 + Jackson 3) -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.6.0</version>
+            <version>3.0.2</version>
+        </dependency>
+
+        <!-- PDF text extraction for resume parsing -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.3</version>
         </dependency>
 
         <!-- Lombok (optional, compile-only) -->
@@ -142,6 +149,22 @@
                 <configuration>
                     <distributionUrl>https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.9/apache-maven-3.9.9-bin.zip</distributionUrl>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <configuration>
+                    <url>${env.DB_URL:-jdbc:postgresql://localhost:5432/future_scope_dev}</url>
+                    <user>${env.DB_USERNAME:-future_scope}</user>
+                    <password>${env.DB_PASSWORD:-future_scope}</password>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.flywaydb</groupId>
+                        <artifactId>flyway-database-postgresql</artifactId>
+                        <version>11.14.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

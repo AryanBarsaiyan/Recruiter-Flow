@@ -15,6 +15,7 @@ import com.futurescope.platform.candidate.domain.Candidate;
 import com.futurescope.platform.candidate.domain.Resume;
 import com.futurescope.platform.candidate.repository.CandidateRepository;
 import com.futurescope.platform.candidate.repository.ResumeRepository;
+import com.futurescope.platform.common.exception.AlreadyAppliedException;
 import com.futurescope.platform.job.domain.Job;
 import com.futurescope.platform.job.repository.JobRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,6 +74,10 @@ public class ApplicationService {
         Candidate candidate = candidateRepository.findByUser(user)
                 .orElseGet(() -> createCandidateProfile(user, request));
 
+        if (jobApplicationRepository.findByJobAndCandidate(job, candidate).isPresent()) {
+            throw new AlreadyAppliedException("You have already applied to this job.");
+        }
+
         Resume resume = new Resume();
         resume.setId(UUID.randomUUID());
         resume.setCandidate(candidate);
@@ -111,6 +116,8 @@ public class ApplicationService {
         ApplicationResponse response = new ApplicationResponse();
         response.setId(application.getId());
         response.setJobId(job.getId());
+        response.setJobTitle(job.getTitle());
+        response.setCompanyName(job.getCompany() != null ? job.getCompany().getName() : null);
         response.setCandidateId(candidate.getId());
         response.setStatus(application.getStatus());
         response.setAppliedAt(application.getAppliedAt());

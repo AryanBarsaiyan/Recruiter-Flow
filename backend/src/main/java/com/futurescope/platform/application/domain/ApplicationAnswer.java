@@ -1,6 +1,8 @@
 package com.futurescope.platform.application.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -20,6 +22,7 @@ public class ApplicationAnswer {
     private String fieldKey;
 
     @Column(name = "value")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String valueJson;
 
     @Column(name = "created_at", nullable = false)

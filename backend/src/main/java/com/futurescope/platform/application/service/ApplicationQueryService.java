@@ -10,9 +10,12 @@ import com.futurescope.platform.auth.domain.User;
 import com.futurescope.platform.auth.service.RbacService;
 import com.futurescope.platform.candidate.domain.Candidate;
 import com.futurescope.platform.candidate.repository.CandidateRepository;
+import com.futurescope.platform.job.domain.Job;
+import com.futurescope.platform.job.repository.JobRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,19 +25,58 @@ public class ApplicationQueryService {
     private final JobApplicationRepository jobApplicationRepository;
     private final ApplicationStageProgressRepository stageProgressRepository;
     private final CandidateRepository candidateRepository;
+    private final JobRepository jobRepository;
     private final RbacService rbacService;
+    private final ResumeUploadService resumeUploadService;
 
     public ApplicationQueryService(
             JobApplicationRepository jobApplicationRepository,
             ApplicationStageProgressRepository stageProgressRepository,
             CandidateRepository candidateRepository,
-            RbacService rbacService
+            JobRepository jobRepository,
+            RbacService rbacService,
+            ResumeUploadService resumeUploadService
     ) {
         this.jobApplicationRepository = jobApplicationRepository;
         this.stageProgressRepository = stageProgressRepository;
         this.candidateRepository = candidateRepository;
+        this.jobRepository = jobRepository;
         this.rbacService = rbacService;
+        this.resumeUploadService = resumeUploadService;
     }
+
+    /**
+     * Returns resume path and filename for download. Must be called within transactional context
+     * so lazy associations (Resume, Job, Company) are loaded.
+     */
+    @Transactional(readOnly = true)
+    public ResumeDownload getResumeForDownload(UUID applicationId, User currentUser) {
+        JobApplication app = jobApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+        if ("candidate".equals(currentUser.getUserType())) {
+            Candidate candidate = candidateRepository.findByUser(currentUser)
+                    .orElseThrow(() -> new IllegalArgumentException("Candidate profile not found"));
+            if (!app.getCandidate().getId().equals(candidate.getId())) {
+                throw new IllegalArgumentException("Application not found");
+            }
+        } else {
+            rbacService.requireActiveCompanyMember(currentUser, app.getJob().getCompany().getId());
+        }
+        if (app.getResume() == null || app.getResume().getStoragePath() == null) {
+            throw new IllegalArgumentException("Resume not found");
+        }
+        Path path = resumeUploadService.resolveResumePath(app.getResume().getStoragePath());
+        if (path == null) {
+            throw new IllegalArgumentException("Resume file not found");
+        }
+        String filename = app.getResume().getOriginalFilename() != null
+                ? app.getResume().getOriginalFilename()
+                : "resume.pdf";
+        boolean isTxt = filename.toLowerCase().endsWith(".txt");
+        return new ResumeDownload(path, filename, isTxt);
+    }
+
+    public record ResumeDownload(Path path, String filename, boolean isTxt) {}
 
     @Transactional(readOnly = true)
     public ApplicationResponse getById(UUID applicationId, User currentUser) {
@@ -95,9 +137,27 @@ public class ApplicationQueryService {
         ApplicationResponse r = new ApplicationResponse();
         r.setId(app.getId());
         r.setJobId(app.getJob().getId());
+        r.setJobTitle(app.getJob().getTitle());
+        r.setCompanyName(app.getJob().getCompany() != null ? app.getJob().getCompany().getName() : null);
         r.setCandidateId(app.getCandidate().getId());
+        r.setCandidateName(app.getCandidate().getFullName());
+        r.setCandidateEmail(app.getCandidate().getUser() != null ? app.getCandidate().getUser().getEmail() : null);
+        if (app.getResume() != null) {
+            r.setResumeId(app.getResume().getId());
+            r.setResumeOriginalFilename(app.getResume().getOriginalFilename());
+        }
         r.setStatus(app.getStatus());
         r.setAppliedAt(app.getAppliedAt());
         return r;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApplicationResponse> listByJob(UUID jobId, User currentUser) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new IllegalArgumentException("Job not found"));
+        rbacService.requireActiveCompanyMember(currentUser, job.getCompany().getId());
+        return jobApplicationRepository.findByJobOrderByAppliedAtDesc(job).stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

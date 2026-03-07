@@ -2,6 +2,8 @@ package com.futurescope.platform.proctoring.domain;
 
 import com.futurescope.platform.interview.domain.Interview;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -28,6 +30,7 @@ public class ProctoringSession {
     private BigDecimal overallRiskScore;
 
     @Column(name = "summary")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String summaryJson;
 
     @Column(name = "created_at", nullable = false)

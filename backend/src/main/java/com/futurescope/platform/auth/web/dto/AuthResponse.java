@@ -8,9 +8,18 @@ public class AuthResponse {
 
     private String refreshToken;
 
+    /** User data for dashboard; avoids extra GET /me or guessing companyId. */
+    private AuthUserDto user;
+
     public AuthResponse(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+    }
+
+    public AuthResponse(String accessToken, String refreshToken, AuthUserDto user) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.user = user;
     }
 
     public String getAccessToken() {
@@ -35,6 +44,14 @@ public class AuthResponse {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public AuthUserDto getUser() {
+        return user;
+    }
+
+    public void setUser(AuthUserDto user) {
+        this.user = user;
     }
 }
 

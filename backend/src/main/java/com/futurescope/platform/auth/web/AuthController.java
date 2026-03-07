@@ -36,7 +36,7 @@ public class AuthController {
             @Valid @RequestBody SignupSuperAdminRequest request
     ) {
         AuthTokens tokens = authService.signupSuperAdmin(request);
-        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken()));
+        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken(), tokens.user()));
     }
 
     @PostMapping("/login")
@@ -44,13 +44,13 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request
     ) {
         AuthTokens tokens = authService.login(request);
-        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken()));
+        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken(), tokens.user()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         AuthTokens tokens = authService.refresh(request);
-        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken()));
+        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken(), tokens.user()));
     }
 
     @PostMapping("/logout")
@@ -69,8 +69,8 @@ public class AuthController {
 
     @PostMapping("/accept-invite")
     public ResponseEntity<AuthResponse> acceptInvite(@Valid @RequestBody AcceptInviteRequest request) {
-        AuthTokens tokens = authService.acceptInvite(request.getToken(), request.getPassword());
-        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken()));
+        AuthTokens tokens = authService.acceptInvite(request.getToken(), request.getFullName(), request.getPassword());
+        return ResponseEntity.ok(new AuthResponse(tokens.accessToken(), tokens.refreshToken(), tokens.user()));
     }
 
     @PostMapping("/verify-email")

@@ -1,6 +1,8 @@
 package com.futurescope.platform.job.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ public class PipelineStage {
     private int orderIndex;
 
     @Column(name = "config")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String configJson;
 
     public UUID getId() {

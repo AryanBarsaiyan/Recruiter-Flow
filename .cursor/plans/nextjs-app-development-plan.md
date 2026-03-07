@@ -3,32 +3,32 @@ name: nextjs-app-development-plan
 overview: Phased plan to build the Future Scope frontend as a Next.js 16 app (App Router, TypeScript, Tailwind), feature-by-feature with unit, component, and E2E testing. After every feature (and phase), end-to-end tests must be written and passing before moving on. Consumes the existing Spring Boot backend.
 todos:
   - id: foundation
-    content: Scaffold Next.js 16 app, API client with auth/refresh, AuthContext, layouts, Jest + Playwright setup.
-    status: pending
+    content: Scaffold Next.js 16 app, API client with auth/refresh, AuthContext, layouts, Playwright E2E.
+    status: completed
   - id: phase1-auth
-    content: Auth UI – login, signup (super-admin), logout, refresh; recruiter companyId handling.
-    status: pending
+    content: Auth UI – login, signup (super-admin), logout, refresh; recruiter companyId from defaultCompanyId.
+    status: completed
   - id: phase2-company
     content: Company profile, members, branding, recruiter dashboard, pipelines.
-    status: pending
+    status: completed
   - id: phase3-jobs
-    content: Jobs CRUD, list (paginated), public job board.
-    status: pending
+    content: Jobs CRUD, list (paginated), public job board, job detail applications list.
+    status: completed
   - id: phase4-apply
-    content: Apply to job, application detail, stage progress.
-    status: pending
+    content: Apply – upload resume, analyze, pre-fill form, submit; application detail, stage progress.
+    status: completed
   - id: phase5-candidate
     content: Candidate /me – profile, applications, saved jobs (add/remove).
-    status: pending
+    status: completed
   - id: phase6-scheduling
-    content: Invitation by token, book slot.
-    status: pending
+    content: Invitation by token, book slot (UTC ISO); invite page loads.
+    status: completed
   - id: phase7-interview
     content: Interview start, submit code, follow-up answer; proctoring session, events, end.
-    status: pending
+    status: completed
   - id: phase8-reports
-    content: Reports, CSV export, invite/accept-invite, password reset, verify email, bulk import, audit, platform admin, webhooks.
-    status: pending
+    content: Reports, CSV export, accept-invite, password reset, verify email, audit logs, bulk import UI, platform admin dashboard, webhooks config UI.
+    status: completed
 isProject: false
 ---
 

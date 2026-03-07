@@ -3,6 +3,8 @@ package com.futurescope.platform.interview.domain;
 import com.futurescope.platform.auth.domain.Company;
 import com.futurescope.platform.job.domain.Job;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -36,6 +38,7 @@ public class QuestionBankQuestion {
     private String difficulty;
 
     @Column(name = "topics")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String topicsJson;
 
     @Column(name = "max_score", precision = 5, scale = 2)

@@ -6,6 +6,7 @@ import com.futurescope.platform.auth.domain.User;
 import com.futurescope.platform.auth.repository.CompanyRepository;
 import com.futurescope.platform.auth.repository.UserRepository;
 import com.futurescope.platform.auth.service.RbacService;
+import com.futurescope.platform.common.exception.ResourceNotFoundException;
 import com.futurescope.platform.job.domain.Job;
 import com.futurescope.platform.job.domain.Pipeline;
 import com.futurescope.platform.job.repository.JobRepository;
@@ -74,11 +75,18 @@ public class JobService {
         job.setScoringWeightsOverrideJson(request.getScoringWeightsOverrideJson());
         job.setCreatedBy(createdBy);
 
+        Pipeline pipeline;
         if (request.getPipelineId() != null) {
-            Pipeline pipeline = pipelineRepository.findById(request.getPipelineId())
+            pipeline = pipelineRepository.findById(request.getPipelineId())
                     .orElseThrow(() -> new IllegalArgumentException("Pipeline not found"));
-            job.setPipeline(pipeline);
+            if (!pipeline.getCompany().getId().equals(company.getId())) {
+                throw new IllegalArgumentException("Pipeline not found");
+            }
+        } else {
+            pipeline = pipelineRepository.findByCompanyAndIsDefaultTrue(company)
+                    .orElseThrow(() -> new IllegalArgumentException("Pipeline is required. Create a pipeline first in Company settings."));
         }
+        job.setPipeline(pipeline);
 
         OffsetDateTime now = OffsetDateTime.now();
         job.setCreatedAt(now);
@@ -94,7 +102,7 @@ public class JobService {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new IllegalArgumentException("Job not found"));
         CompanyMember member = rbacService.requireActiveCompanyMember(currentUser, job.getCompany().getId());
-        rbacService.requireAnyRole(member, java.util.Set.of("SuperAdmin", "Admin", "ReadOnly"));
+        rbacService.requireAnyRole(member, java.util.Set.of("SuperAdmin", "Admin", "ReadOnly", "View"));
         return toResponse(job);
     }
 
@@ -109,7 +117,21 @@ public class JobService {
     @Transactional(readOnly = true)
     public List<JobResponse> listPublicJobs() {
         List<Job> jobs = jobRepository.findPublicOpenJobs(OffsetDateTime.now());
-        return jobs.stream().map(this::toResponse).toList();
+        return jobs.stream().map(this::toPublicResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public JobResponse getPublicJobById(UUID jobId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+        if (!job.isPublished()) {
+            throw new ResourceNotFoundException("Job not found");
+        }
+        OffsetDateTime now = OffsetDateTime.now();
+        if (job.getApplicationDeadline() != null && job.getApplicationDeadline().isBefore(now)) {
+            throw new ResourceNotFoundException("Job not found");
+        }
+        return toPublicResponse(job);
     }
 
     @Transactional
@@ -129,11 +151,16 @@ public class JobService {
         if (request.getResumeCriteriaJson() != null) job.setResumeCriteriaJson(request.getResumeCriteriaJson());
         if (request.getCustomFormSchemaJson() != null) job.setCustomFormSchemaJson(request.getCustomFormSchemaJson());
         if (request.getScoringWeightsOverrideJson() != null) job.setScoringWeightsOverrideJson(request.getScoringWeightsOverrideJson());
-        if (request.getPipelineId() != null) {
-            Pipeline pipeline = pipelineRepository.findById(request.getPipelineId())
-                    .orElseThrow(() -> new IllegalArgumentException("Pipeline not found"));
-            job.setPipeline(pipeline);
+        if (request.getPipelineId() == null) {
+            throw new IllegalArgumentException("Pipeline is required");
         }
+        Pipeline pipeline = pipelineRepository.findById(request.getPipelineId())
+                .orElseThrow(() -> new IllegalArgumentException("Pipeline not found"));
+        if (!pipeline.getCompany().getId().equals(job.getCompany().getId())) {
+            throw new IllegalArgumentException("Pipeline not found");
+        }
+        job.setPipeline(pipeline);
+
         job.setUpdatedAt(OffsetDateTime.now());
         Job saved = jobRepository.save(job);
         auditService.log(job.getCompany(), currentUser, member.getRole().getName(), "job_updated", "job", saved.getId(), "{\"title\":\"" + saved.getTitle() + "\"}");
@@ -159,6 +186,20 @@ public class JobService {
         resp.setEmploymentType(job.getEmploymentType());
         resp.setPublished(job.isPublished());
         resp.setApplicationDeadline(job.getApplicationDeadline());
+        resp.setCustomFormSchemaJson(job.getCustomFormSchemaJson());
+        if (job.getPipeline() != null) {
+            resp.setPipelineId(job.getPipeline().getId());
+            resp.setPipelineName(job.getPipeline().getName());
+        }
+        return resp;
+    }
+
+    private JobResponse toPublicResponse(Job job) {
+        JobResponse resp = toResponse(job);
+        if (job.getCompany() != null) {
+            resp.setCompanyName(job.getCompany().getName());
+            resp.setBrandingConfigJson(job.getCompany().getBrandingConfigJson());
+        }
         return resp;
     }
 }

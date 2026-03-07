@@ -2,6 +2,8 @@ package com.futurescope.platform.job.domain;
 
 import com.futurescope.platform.auth.domain.Company;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -24,6 +26,7 @@ public class Pipeline {
     private boolean isDefault;
 
     @Column(name = "definition_meta")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String definitionMetaJson;
 
     @Column(name = "created_at", nullable = false)

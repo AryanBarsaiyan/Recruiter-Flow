@@ -2,6 +2,8 @@ package com.futurescope.platform.notification.domain;
 
 import com.futurescope.platform.auth.domain.Company;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -21,6 +23,7 @@ public class WebhookEvent {
     private String eventType;
 
     @Column(name = "payload")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String payloadJson;
 
     @Column(name = "target_url", nullable = false, length = 512)

@@ -13,6 +13,11 @@ public class JobResponse {
     private String employmentType;
     private boolean published;
     private OffsetDateTime applicationDeadline;
+    private String customFormSchemaJson;
+    private String companyName;
+    private String brandingConfigJson;
+    private UUID pipelineId;
+    private String pipelineName;
 
     public UUID getId() {
         return id;
@@ -76,6 +81,46 @@ public class JobResponse {
 
     public void setApplicationDeadline(OffsetDateTime applicationDeadline) {
         this.applicationDeadline = applicationDeadline;
+    }
+
+    public String getCustomFormSchemaJson() {
+        return customFormSchemaJson;
+    }
+
+    public void setCustomFormSchemaJson(String customFormSchemaJson) {
+        this.customFormSchemaJson = customFormSchemaJson;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getBrandingConfigJson() {
+        return brandingConfigJson;
+    }
+
+    public void setBrandingConfigJson(String brandingConfigJson) {
+        this.brandingConfigJson = brandingConfigJson;
+    }
+
+    public UUID getPipelineId() {
+        return pipelineId;
+    }
+
+    public void setPipelineId(UUID pipelineId) {
+        this.pipelineId = pipelineId;
+    }
+
+    public String getPipelineName() {
+        return pipelineName;
+    }
+
+    public void setPipelineName(String pipelineName) {
+        this.pipelineName = pipelineName;
     }
 }
 

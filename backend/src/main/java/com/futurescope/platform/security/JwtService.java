@@ -4,7 +4,6 @@ import com.futurescope.platform.auth.domain.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -21,12 +20,9 @@ public class JwtService {
     private final SecretKey signingKey;
     private final long accessTokenMinutes;
 
-    public JwtService(
-            @Value("${security.jwt.secret}") String secret,
-            @Value("${security.jwt.access-token-minutes:60}") long accessTokenMinutes
-    ) {
-        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-        this.accessTokenMinutes = accessTokenMinutes;
+    public JwtService(JwtProperties jwt) {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwt.getSecret()));
+        this.accessTokenMinutes = jwt.getAccessTokenMinutes();
     }
 
     public String generateAccessToken(User user, UUID sessionId) {

@@ -1,6 +1,8 @@
 package com.futurescope.platform.auth.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -20,6 +22,7 @@ public class MfaMethod {
     private String methodType;
 
     @Column(name = "secret_data")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String secretDataJson;
 
     @Column(name = "is_primary", nullable = false)

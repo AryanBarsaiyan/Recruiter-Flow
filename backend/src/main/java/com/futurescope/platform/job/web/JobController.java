@@ -1,5 +1,7 @@
 package com.futurescope.platform.job.web;
 
+import com.futurescope.platform.application.service.ApplicationQueryService;
+import com.futurescope.platform.application.web.dto.ApplicationResponse;
 import com.futurescope.platform.auth.domain.User;
 import com.futurescope.platform.job.service.JobService;
 import com.futurescope.platform.job.web.dto.CreateJobRequest;
@@ -29,9 +31,11 @@ import java.util.UUID;
 public class JobController {
 
     private final JobService jobService;
+    private final ApplicationQueryService applicationQueryService;
 
-    public JobController(JobService jobService) {
+    public JobController(JobService jobService, ApplicationQueryService applicationQueryService) {
         this.jobService = jobService;
+        this.applicationQueryService = applicationQueryService;
     }
 
     @PostMapping
@@ -50,6 +54,15 @@ public class JobController {
     ) {
         JobResponse response = jobService.getById(id, currentUser);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/applications")
+    public ResponseEntity<List<ApplicationResponse>> listJobApplications(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable UUID id
+    ) {
+        List<ApplicationResponse> list = applicationQueryService.listByJob(id, currentUser);
+        return ResponseEntity.ok(list);
     }
 
     @PutMapping("/{id}")
@@ -85,6 +98,12 @@ public class JobController {
     public ResponseEntity<List<JobResponse>> publicJobs() {
         List<JobResponse> jobs = jobService.listPublicJobs();
         return ResponseEntity.ok(jobs);
+    }
+
+    @GetMapping("/public/{id}")
+    public ResponseEntity<JobResponse> getPublicJob(@PathVariable UUID id) {
+        JobResponse response = jobService.getPublicJobById(id);
+        return ResponseEntity.ok(response);
     }
 }
 

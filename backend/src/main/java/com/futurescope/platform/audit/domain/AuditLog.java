@@ -3,6 +3,8 @@ package com.futurescope.platform.audit.domain;
 import com.futurescope.platform.auth.domain.Company;
 import com.futurescope.platform.auth.domain.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -35,6 +37,7 @@ public class AuditLog {
     private UUID entityId;
 
     @Column(name = "metadata")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String metadataJson;
 
     @Column(name = "created_at", nullable = false)

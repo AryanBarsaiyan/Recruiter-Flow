@@ -6,12 +6,12 @@ Spring Boot 4 backend for the **Recruitment & AI Interview Platform** — auth, 
 
 ## Prerequisites
 
-| Requirement | Notes |
-|-------------|--------|
-| **Java 21** | [Eclipse Temurin](https://adoptium.net/) or [Microsoft OpenJDK 21](https://learn.microsoft.com/en-us/java/openjdk/download) |
-| **PostgreSQL** | For local run; create DB and user (see below) |
-| **Docker** | Required only for **integration tests** (Testcontainers) |
-| **Maven** | Optional — project includes Maven Wrapper (`mvnw` / `mvnw.cmd`) |
+| Requirement    | Notes                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Java 21**    | [Eclipse Temurin](https://adoptium.net/) or [Microsoft OpenJDK 21](https://learn.microsoft.com/en-us/java/openjdk/download) |
+| **PostgreSQL** | For local run; create DB and user (see below)                                                                               |
+| **Docker**     | Required only for **integration tests** (Testcontainers)                                                                    |
+| **Maven**      | Optional — project includes Maven Wrapper (`mvnw` / `mvnw.cmd`)                                                             |
 
 ---
 
@@ -83,6 +83,21 @@ With custom DB (no .env):
 
 Server starts at **http://localhost:8080** (or `SERVER_PORT` if set).
 
+### E2E test candidate seed
+
+To run frontend e2e tests for the candidate profile page, seed a test candidate on startup:
+
+```bash
+# Windows
+set APP_E2E_SEED_ENABLED=true
+.\mvnw.cmd spring-boot:run
+
+# Linux / macOS
+APP_E2E_SEED_ENABLED=true ./mvnw spring-boot:run
+```
+
+This creates `test-candidate@example.com` / `password123` if it does not exist.
+
 ---
 
 ## How to run tests
@@ -119,7 +134,28 @@ If you see `Could not find a valid Docker environment`, start Docker Desktop (or
 
 ## Using .env
 
-Spring Boot does not load `.env` by default. Use one of these approaches:
+**Recommended: Spring Boot native import**
+
+The project loads `.env` via `spring.config.import` (see `application.properties`). No need to export variables manually — just run from the **backend** directory:
+
+```bash
+.\mvnw spring-boot:run
+```
+
+Create or copy `.env` from `env.sample` and set at least:
+
+```properties
+DB_URL=jdbc:postgresql://localhost:5432/your-db-name
+DB_USERNAME=your-db-user
+DB_PASSWORD=your-db-password
+```
+
+`application.properties` uses:
+
+- `spring.config.import=optional:file:.env[.properties]` — load `.env` from the working directory (optional = no error if missing)
+- `spring.datasource.url=${DB_URL:default}`, etc. — use `.env` values with fallback defaults
+
+**Other options (if you prefer not to use .env file):**
 
 **Option A – Export then run (Linux/macOS):**
 
@@ -130,24 +166,11 @@ set +a
 ./mvnw spring-boot:run
 ```
 
-**Option B – PowerShell (Windows):**
+**Option B – Override in config**
 
-```powershell
-Get-Content .env | ForEach-Object {
-  if ($_ -match '^\s*([^#=]+)=(.*)$') {
-    [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), 'Process')
-  }
-}
-.\mvnw.cmd spring-boot:run
-```
+Put values into `src/main/resources/application-local.yml` (add to `.gitignore` if it contains secrets). Spring Boot loads `application-local.yml` when present.
 
-**Option C – Override in config**
-
-Rename or copy `env.sample` to `.env`, then put the same values into `src/main/resources/application-local.yml` (and add `application-local.yml` to `.gitignore` if it contains secrets). Spring Boot loads `application-local.yml` automatically when present.
-
-**Option D – System properties**
-
-Pass variables when running:
+**Option C – System properties**
 
 ```bash
 .\mvnw.cmd spring-boot:run -Dspring.datasource.url=jdbc:postgresql://localhost:5432/mydb -Dspring.datasource.password=secret
@@ -155,20 +178,56 @@ Pass variables when running:
 
 ---
 
+## Database migrations (Flyway)
+
+Schema is managed by **Flyway**. On a **new or empty database**, apply migrations before or during the first app start.
+
+**Option 1 – Let the app run migrations (recommended)**  
+Start the app with your `.env` loaded (see [Using .env](#using-env)). Spring Boot runs Flyway on startup and creates/updates the schema automatically.
+
+**Option 2 – Run Flyway from Maven first**  
+Useful if you want to migrate without starting the app. Set Flyway env vars, then run migrate:
+
+**Windows (PowerShell):**
+
+```powershell
+$env:FLYWAY_URL="jdbc:postgresql://localhost:5432/your-db-name"
+$env:FLYWAY_USER="your-db-user"
+$env:FLYWAY_PASSWORD="your-db-password"
+.\mvnw flyway:migrate
+```
+
+**Linux / macOS:**
+
+```bash
+export FLYWAY_URL="jdbc:postgresql://localhost:5432/your-db-name"
+export FLYWAY_USER="your-db-user"
+export FLYWAY_PASSWORD="your-db-password"
+./mvnw flyway:migrate
+```
+
+The Flyway Maven plugin is configured in `pom.xml` with the **PostgreSQL database plugin** (`flyway-database-postgresql`) so `flyway:migrate` can connect to PostgreSQL. After migrations succeed, start the app as usual (with the same DB in `.env` or config).
+
+---
+
 ## Configuration reference
 
-| Property | Default | Description |
-|----------|---------|-------------|
-| `spring.datasource.url` | `jdbc:postgresql://localhost:5432/future_scope_dev` | PostgreSQL JDBC URL |
-| `spring.datasource.username` | `future_scope` | DB user |
-| `spring.datasource.password` | `future_scope` | DB password |
-| `security.jwt.secret` | (see `application.yml`) | Base64 JWT signing secret; **must change in production** |
-| `security.jwt.access-token-minutes` | `60` | Access token validity (minutes) |
-| `app.rate-limit.enabled` | `true` | Enable rate limiting |
-| `app.rate-limit.auth-requests-per-minute` | `15` | Auth endpoints (per IP) |
-| `server.port` | `8080` | HTTP port |
+All of these can be set in `.env` (loaded via `spring.config.import`). Keys in `.env` map as below:
 
-Env vars use relaxed binding, e.g. `SPRING_DATASOURCE_URL`, `SECURITY_JWT_SECRET`, `SERVER_PORT`.
+| Property                                                | .env key                                                | Default                                             | Description                                 |
+| ------------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------- |
+| `spring.datasource.url`                                 | `DB_URL`                                                | `jdbc:postgresql://localhost:5432/future_scope_dev` | PostgreSQL JDBC URL                         |
+| `spring.datasource.username`                            | `DB_USERNAME`                                           | `future_scope`                                      | DB user                                     |
+| `spring.datasource.password`                            | `DB_PASSWORD`                                           | `future_scope`                                      | DB password                                 |
+| `security.jwt.secret`                                   | `SECURITY_JWT_SECRET`                                   | (see `application.properties`)                      | Base64 JWT secret; **change in production** |
+| `security.jwt.access-token-minutes`                     | `SECURITY_JWT_ACCESS_TOKEN_MINUTES`                     | `60`                                                | Access token validity (minutes)             |
+| `app.base-url`                                          | `APP_BASE_URL`                                          | `https://app.example.com`                           | App base URL                                |
+| `app.rate-limit.enabled`                                | `APP_RATE_LIMIT_ENABLED`                                | `true`                                              | Enable rate limiting                        |
+| `app.rate-limit.auth-requests-per-minute`               | `APP_RATE_LIMIT_AUTH_REQUESTS_PER_MINUTE`               | `15`                                                | Auth endpoints (per IP)                     |
+| `app.rate-limit.interview-requests-per-minute`          | `APP_RATE_LIMIT_INTERVIEW_REQUESTS_PER_MINUTE`          | `30`                                                | Interview endpoints                         |
+| `app.rate-limit.proctoring-session-requests-per-minute` | `APP_RATE_LIMIT_PROCTORING_SESSION_REQUESTS_PER_MINUTE` | `10`                                                | Proctoring session                          |
+| `app.rate-limit.proctoring-events-per-minute`           | `APP_RATE_LIMIT_PROCTORING_EVENTS_PER_MINUTE`           | `120`                                               | Proctoring events                           |
+| `server.port`                                           | `SERVER_PORT`                                           | `8080`                                              | HTTP port                                   |
 
 ---
 
@@ -176,15 +235,15 @@ Env vars use relaxed binding, e.g. `SPRING_DATASOURCE_URL`, `SECURITY_JWT_SECRET
 
 When the app is running:
 
-- **Swagger UI:** http://localhost:8080/swagger-ui.html  
-- **OpenAPI JSON:** http://localhost:8080/v3/api-docs  
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON:** http://localhost:8080/v3/api-docs
 
 ---
 
 ## Health and actuator
 
-- **Health:** http://localhost:8080/actuator/health  
-- **Info:** http://localhost:8080/actuator/info  
+- **Health:** http://localhost:8080/actuator/health
+- **Info:** http://localhost:8080/actuator/info
 
 ---
 

@@ -16,9 +16,13 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.mock.web.MockMultipartFile;
+
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,6 +68,24 @@ class MeFeatureTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void patchMe_asCandidate_updatesProfile() throws Exception {
+        String updateBody = objectMapper.writeValueAsString(Map.of(
+                "fullName", "Updated Name",
+                "phone", "+1234567890",
+                "college", "Test University",
+                "graduationYear", 2025));
+        mockMvc.perform(patch("/me")
+                        .header("Authorization", "Bearer " + candidateToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fullName").value("Updated Name"))
+                .andExpect(jsonPath("$.phone").value("+1234567890"))
+                .andExpect(jsonPath("$.college").value("Test University"))
+                .andExpect(jsonPath("$.graduationYear").value(2025));
+    }
+
+    @Test
     void getMeApplications_asCandidate_returnsList() throws Exception {
         mockMvc.perform(get("/me/applications")
                         .header("Authorization", "Bearer " + candidateToken))
@@ -77,6 +99,26 @@ class MeFeatureTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + candidateToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void postAvatar_asCandidate_returnsUpdatedProfile() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "avatar.png",
+                "image/png",
+                "fake-png-content".getBytes());
+        mockMvc.perform(multipart("/me/avatar").file(file)
+                        .header("Authorization", "Bearer " + candidateToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avatarUrl").value("/me/avatar"));
+    }
+
+    @Test
+    void getAvatar_asCandidateWithNoAvatar_returns404() throws Exception {
+        mockMvc.perform(get("/me/avatar")
+                        .header("Authorization", "Bearer " + candidateToken))
+                .andExpect(status().isNotFound());
     }
 
     @Test

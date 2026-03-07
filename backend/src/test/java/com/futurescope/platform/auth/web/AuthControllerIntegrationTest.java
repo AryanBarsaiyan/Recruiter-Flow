@@ -55,7 +55,12 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
                 .andExpect(jsonPath("$.refreshToken").isNotEmpty())
-                .andExpect(jsonPath("$.tokenType").value("Bearer"));
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.user.id").isNotEmpty())
+                .andExpect(jsonPath("$.user.email").value("admin@company.com"))
+                .andExpect(jsonPath("$.user.userType").value("recruiter"))
+                .andExpect(jsonPath("$.user.defaultCompanyId").isNotEmpty())
+                .andExpect(jsonPath("$.user.fullName").value("Admin User"));
     }
 
     @Test
@@ -78,7 +83,11 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(login)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
+                .andExpect(jsonPath("$.user.email").value("login@company.com"))
+                .andExpect(jsonPath("$.user.userType").value("recruiter"))
+                .andExpect(jsonPath("$.user.defaultCompanyId").isNotEmpty())
+                .andExpect(jsonPath("$.user.fullName").value("Login User"));
     }
 
     @Test
@@ -114,7 +123,8 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(refreshReq)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
+                .andExpect(jsonPath("$.user.fullName").value("Refresh User"));
     }
 
     @Test

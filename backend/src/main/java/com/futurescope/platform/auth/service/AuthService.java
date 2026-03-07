@@ -12,6 +12,7 @@ import com.futurescope.platform.auth.repository.PasswordResetRepository;
 import com.futurescope.platform.auth.repository.RoleRepository;
 import com.futurescope.platform.auth.repository.UserRepository;
 import com.futurescope.platform.auth.repository.UserSessionRepository;
+import com.futurescope.platform.auth.web.dto.AuthUserDto;
 import com.futurescope.platform.auth.web.dto.InviteRequest;
 import com.futurescope.platform.auth.web.dto.InviteResponse;
 import com.futurescope.platform.auth.web.dto.LoginRequest;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -96,6 +98,7 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setUserType("recruiter");
+        user.setFullName(request.getFullName());
         user.setActive(true);
         user.setCreatedAt(OffsetDateTime.now());
         userRepository.save(user);
@@ -132,6 +135,9 @@ public class AuthService {
         User user = userRepository.findByEmailIgnoreCase(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
 
+        user.setLastLoginAt(OffsetDateTime.now());
+        userRepository.save(user);
+
         return createSessionAndTokens(user);
     }
 
@@ -145,7 +151,8 @@ public class AuthService {
 
         User user = session.getUser();
         String accessToken = jwtService.generateAccessToken(user, session.getId());
-        return new AuthTokens(accessToken, session.getSessionToken());
+        AuthUserDto userDto = buildAuthUserDto(user);
+        return new AuthTokens(accessToken, session.getSessionToken(), userDto);
     }
 
     @Transactional
@@ -209,7 +216,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthTokens acceptInvite(String token, String password) {
+    public AuthTokens acceptInvite(String token, String fullName, String password) {
         var ev = emailVerificationRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or expired invite token"));
         if (ev.getUsedAt() != null) throw new IllegalArgumentException("Invite already used");
@@ -222,6 +229,9 @@ public class AuthService {
         member.setStatus("active");
         companyMemberRepository.save(member);
         user.setActive(true);
+        if (fullName != null && !fullName.isBlank()) {
+            user.setFullName(fullName.trim());
+        }
         if (password != null && !password.isBlank()) {
             user.setPasswordHash(passwordEncoder.encode(password));
         }
@@ -297,10 +307,26 @@ public class AuthService {
         userSessionRepository.save(session);
 
         String accessToken = jwtService.generateAccessToken(user, session.getId());
-        return new AuthTokens(accessToken, session.getSessionToken());
+        AuthUserDto userDto = buildAuthUserDto(user);
+        return new AuthTokens(accessToken, session.getSessionToken(), userDto);
     }
 
-    public record AuthTokens(String accessToken, String refreshToken) {
+    private AuthUserDto buildAuthUserDto(User user) {
+        AuthUserDto dto = new AuthUserDto();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setUserType(user.getUserType());
+        dto.setFullName(user.getFullName());
+        if ("recruiter".equals(user.getUserType())) {
+            List<CompanyMember> memberships = companyMemberRepository.findByUserAndStatusOrderByCreatedAtDesc(user, "active");
+            if (!memberships.isEmpty()) {
+                dto.setDefaultCompanyId(memberships.get(0).getCompany().getId());
+            }
+        }
+        return dto;
+    }
+
+    public record AuthTokens(String accessToken, String refreshToken, AuthUserDto user) {
     }
 }
 

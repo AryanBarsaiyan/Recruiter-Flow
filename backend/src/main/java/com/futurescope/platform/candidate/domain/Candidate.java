@@ -2,6 +2,8 @@ package com.futurescope.platform.candidate.domain;
 
 import com.futurescope.platform.auth.domain.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -29,7 +31,11 @@ public class Candidate {
     @Column(name = "graduation_year")
     private Integer graduationYear;
 
+    @Column(name = "avatar_storage_path", length = 512)
+    private String avatarStoragePath;
+
     @Column(name = "extra_metadata")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String extraMetadataJson;
 
     @Column(name = "created_at", nullable = false)
@@ -81,6 +87,14 @@ public class Candidate {
 
     public void setGraduationYear(Integer graduationYear) {
         this.graduationYear = graduationYear;
+    }
+
+    public String getAvatarStoragePath() {
+        return avatarStoragePath;
+    }
+
+    public void setAvatarStoragePath(String avatarStoragePath) {
+        this.avatarStoragePath = avatarStoragePath;
     }
 
     public String getExtraMetadataJson() {

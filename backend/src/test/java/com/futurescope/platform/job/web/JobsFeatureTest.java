@@ -37,6 +37,7 @@ class JobsFeatureTest extends AbstractIntegrationTest {
     MockMvc mockMvc;
     String recruiterToken;
     java.util.UUID companyId;
+    UUID pipelineId;
 
     String recruiterEmail;
 
@@ -57,6 +58,17 @@ class JobsFeatureTest extends AbstractIntegrationTest {
         recruiterToken = objectMapper.readTree(res).get("accessToken").asText();
         User user = userRepository.findByEmailIgnoreCase(recruiterEmail).orElseThrow();
         companyId = companyMemberRepository.findByUser(user).stream().findFirst().orElseThrow().getCompany().getId();
+        String pipelineBody = objectMapper.writeValueAsString(Map.of(
+                "companyId", companyId.toString(),
+                "name", "Default Hiring",
+                "isDefault", true));
+        String pipelineRes = mockMvc.perform(post("/companies/{companyId}/pipelines", companyId)
+                        .header("Authorization", "Bearer " + recruiterToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(pipelineBody))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        pipelineId = UUID.fromString(objectMapper.readTree(pipelineRes).get("id").asText());
     }
 
     @Test
@@ -115,7 +127,7 @@ class JobsFeatureTest extends AbstractIntegrationTest {
         mockMvc.perform(put("/jobs/{id}", jobId)
                         .header("Authorization", "Bearer " + recruiterToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("title", "Updated Title"))))
+                        .content(objectMapper.writeValueAsString(Map.of("title", "Updated Title", "pipelineId", pipelineId.toString()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated Title"));
     }
@@ -140,5 +152,110 @@ class JobsFeatureTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/jobs/public"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void getPublicJob_byId_returnsJobWhenPublished() throws Exception {
+        String createReq = objectMapper.writeValueAsString(Map.of("companyId", companyId.toString(), "title", "Public Job Title"));
+        String createRes = mockMvc.perform(post("/jobs")
+                        .header("Authorization", "Bearer " + recruiterToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createReq))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        UUID jobId = UUID.fromString(objectMapper.readTree(createRes).get("id").asText());
+        mockMvc.perform(put("/jobs/{id}", jobId)
+                        .header("Authorization", "Bearer " + recruiterToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("published", true, "pipelineId", pipelineId.toString()))))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/jobs/public/{id}", jobId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(jobId.toString()))
+                .andExpect(jsonPath("$.title").value("Public Job Title"));
+    }
+
+    @Test
+    void createJob_withoutPipelineWhenNoDefault_returns400() throws Exception {
+        String email = "jobs-nopipe-" + UUID.randomUUID() + "@test.com";
+        String signupBody = objectMapper.writeValueAsString(Map.of(
+                "email", email,
+                "password", "password1",
+                "fullName", "R",
+                "companyName", "No Pipeline Co " + UUID.randomUUID().toString().substring(0, 8)));
+        String res = mockMvc.perform(post("/auth/signup-super-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupBody))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String token = objectMapper.readTree(res).get("accessToken").asText();
+        User user = userRepository.findByEmailIgnoreCase(email).orElseThrow();
+        UUID noPipelineCompanyId = companyMemberRepository.findByUser(user).stream().findFirst().orElseThrow().getCompany().getId();
+        String req = objectMapper.writeValueAsString(Map.of(
+                "companyId", noPipelineCompanyId.toString(),
+                "title", "No Pipeline Job"));
+        mockMvc.perform(post("/jobs")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(req))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Pipeline is required. Create a pipeline first in Company settings."));
+    }
+
+    @Test
+    void updateJob_withoutPipelineId_returns400() throws Exception {
+        String createReq = objectMapper.writeValueAsString(Map.of("companyId", companyId.toString(), "title", "To Update"));
+        String createRes = mockMvc.perform(post("/jobs")
+                        .header("Authorization", "Bearer " + recruiterToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createReq))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        UUID jobId = UUID.fromString(objectMapper.readTree(createRes).get("id").asText());
+        mockMvc.perform(put("/jobs/{id}", jobId)
+                        .header("Authorization", "Bearer " + recruiterToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("title", "Updated"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Pipeline is required"));
+    }
+
+    @Test
+    void getPublicJob_byId_returns404WhenJobNotFound() throws Exception {
+        UUID randomId = UUID.randomUUID();
+        mockMvc.perform(get("/jobs/public/{id}", randomId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Job not found"));
+    }
+
+    @Test
+    void listJobApplications_asRecruiter_returnsApplicationsWithJobTitle() throws Exception {
+        String createReq = objectMapper.writeValueAsString(Map.of("companyId", companyId.toString(), "title", "Applications List Job"));
+        String createRes = mockMvc.perform(post("/jobs")
+                        .header("Authorization", "Bearer " + recruiterToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createReq))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        UUID jobId = UUID.fromString(objectMapper.readTree(createRes).get("id").asText());
+        String applyBody = objectMapper.writeValueAsString(Map.of(
+                "email", "list-applicant-" + UUID.randomUUID() + "@test.com",
+                "fullName", "Applicant",
+                "resumeStoragePath", "test/resume.pdf",
+                "resumeOriginalFilename", "resume.pdf"));
+        mockMvc.perform(post("/jobs/{jobId}/apply", jobId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(applyBody))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/jobs/{id}/applications", jobId)
+                        .header("Authorization", "Bearer " + recruiterToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].jobTitle").value("Applications List Job"))
+                .andExpect(jsonPath("$[0].companyName").exists());
     }
 }

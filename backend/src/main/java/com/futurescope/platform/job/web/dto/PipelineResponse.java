@@ -1,5 +1,7 @@
 package com.futurescope.platform.job.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public class PipelineResponse {
@@ -7,6 +9,8 @@ public class PipelineResponse {
     private UUID id;
     private UUID companyId;
     private String name;
+
+    @JsonProperty("default")
     private boolean isDefault;
 
     public UUID getId() { return id; }

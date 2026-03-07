@@ -3,6 +3,8 @@ package com.futurescope.platform.job.domain;
 import com.futurescope.platform.auth.domain.Company;
 import com.futurescope.platform.auth.domain.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -40,12 +42,15 @@ public class Job {
     private Integer maxApplications;
 
     @Column(name = "resume_criteria")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String resumeCriteriaJson;
 
     @Column(name = "custom_form_schema")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String customFormSchemaJson;
 
     @Column(name = "scoring_weights_override")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String scoringWeightsOverrideJson;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

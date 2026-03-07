@@ -1,20 +1,11 @@
-app:
-  base-url: https://app.example.com
-  rate-limit:
-    enabled: true
-    auth-requests-per-minute: 15
-    interview-requests-per-minute: 30
-    proctoring-session-requests-per-minute: 10
-    proctoring-events-per-minute: 120
+# app.* and security.jwt.* come from application.properties (via .env: APP_BASE_URL, SECURITY_JWT_SECRET, etc.)
 
 spring:
   application:
     name: future-scope-backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/future_scope_dev
-    username: future_scope
-    password: future_scope
+    # url, username, password come from application.properties (${DB_URL}, ${DB_USERNAME}, ${DB_PASSWORD} via .env)
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -35,11 +26,7 @@ logging:
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
 
-security:
-  jwt:
-    # Replace with a secure random 256-bit base64-encoded secret in real environments
-    secret: "ZmFrZV9mYWtlX2Zha2VfZmFrZV9mYWtlX2Zha2VfZmFrZV9mYWtlX2Zha2U="
-    access-token-minutes: 60
+# security.jwt.* from application.properties (.env: SECURITY_JWT_SECRET, SECURITY_JWT_ACCESS_TOKEN_MINUTES)
 
 management:
   endpoints:

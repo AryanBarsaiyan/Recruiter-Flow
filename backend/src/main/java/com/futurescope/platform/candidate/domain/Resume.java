@@ -1,6 +1,8 @@
 package com.futurescope.platform.candidate.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -26,6 +28,7 @@ public class Resume {
     private String parsedText;
 
     @Column(name = "parsed_metadata")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String parsedMetadataJson;
 
     @Column(name = "created_at", nullable = false)

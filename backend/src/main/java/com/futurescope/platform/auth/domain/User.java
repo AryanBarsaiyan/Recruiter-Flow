@@ -24,6 +24,12 @@ public class User {
     @Column(name = "user_type", nullable = false, length = 32)
     private String userType;
 
+    @Column(name = "full_name", length = 255)
+    private String fullName;
+
+    @Column(name = "avatar_storage_path", length = 512)
+    private String avatarStoragePath;
+
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
@@ -63,6 +69,22 @@ public class User {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getAvatarStoragePath() {
+        return avatarStoragePath;
+    }
+
+    public void setAvatarStoragePath(String avatarStoragePath) {
+        this.avatarStoragePath = avatarStoragePath;
     }
 
     public boolean isActive() {
